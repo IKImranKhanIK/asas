@@ -24,7 +24,17 @@ export default function GuardMap({ guards, locationChecks }: { guards: GuardPin[
   const mapInstanceRef = useRef<any>(null)
 
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return
+    if (!mapRef.current) return
+
+    // Clean up any existing Leaflet instance on the container (handles StrictMode double-render)
+    const container = mapRef.current as any
+    if (container._leaflet_id) {
+      mapInstanceRef.current?.remove()
+      mapInstanceRef.current = null
+      container._leaflet_id = undefined
+    }
+
+    if (mapInstanceRef.current) return
 
     async function initMap() {
       const L = (await import('leaflet')).default
