@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import ClockPanel from './ClockPanel'
+import LoneWorkerTimer from '@/components/LoneWorkerTimer'
 import { format } from 'date-fns'
 
 export default async function ClockPage() {
@@ -29,6 +30,7 @@ export default async function ClockPage() {
     <div className="max-w-lg mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Clock In / Out</h1>
       <ClockPanel guardId={user!.id} isClockedIn={isClockedIn} />
+      <LoneWorkerTimer guardId={user!.id} />
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
         <h2 className="font-semibold text-gray-800 mb-4">Today&apos;s Activity</h2>

@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function NewLocationForm({ userId }: { userId: string }) {
   const router = useRouter()
-  const [form, setForm] = useState({ name: '', description: '', address: '' })
+  const [form, setForm] = useState({ name: '', description: '', address: '', geofence_radius: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -24,6 +24,7 @@ export default function NewLocationForm({ userId }: { userId: string }) {
       name: form.name,
       description: form.description || null,
       address: form.address || null,
+      geofence_radius: form.geofence_radius ? parseInt(form.geofence_radius) : null,
       created_by: userId,
     })
 
@@ -59,6 +60,13 @@ export default function NewLocationForm({ userId }: { userId: string }) {
         <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={3}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
           placeholder="Optional notes about this location..." />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Geofence Radius <span className="text-gray-400 font-normal">(meters, optional)</span></label>
+        <input type="number" min="50" max="5000" value={form.geofence_radius} onChange={e => set('geofence_radius', e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          placeholder="e.g. 200 — alert if guard leaves this radius" />
       </div>
 
       <p className="text-xs text-gray-400">A QR code will be automatically generated for this location.</p>
