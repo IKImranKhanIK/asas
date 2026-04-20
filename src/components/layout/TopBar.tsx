@@ -1,4 +1,5 @@
 import { type Profile } from '@/types'
+import NotificationBell from '@/components/NotificationBell'
 
 export default function TopBar({ user }: { user: Profile | null }) {
   const initials = user?.full_name
@@ -11,6 +12,7 @@ export default function TopBar({ user }: { user: Profile | null }) {
     <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
       <div />
       <div className="flex items-center gap-3">
+        {user && <NotificationBell userId={user.id} />}
         <div className="text-right">
           <p className="text-sm font-medium text-gray-800">{user?.full_name ?? 'Unknown'}</p>
           <p className="text-xs text-gray-500">{roleLabel[user?.role ?? 'guard']}</p>
