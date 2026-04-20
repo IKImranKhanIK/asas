@@ -52,7 +52,7 @@ export default async function GuardsPage() {
                         {guard.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-800">{guard.full_name}</p>
+                        <Link href={`/guards/${guard.id}`} className="text-sm font-medium text-gray-800 hover:text-blue-600">{guard.full_name}</Link>
                         <p className="text-xs text-gray-400">{guard.email}</p>
                       </div>
                     </div>
