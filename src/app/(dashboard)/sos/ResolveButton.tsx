@@ -22,12 +22,9 @@ export default function ResolveButton({ alertId }: { alertId: string }) {
   }
 
   return (
-    <button
-      onClick={resolve}
-      disabled={loading}
-      className="shrink-0 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-60"
-    >
-      {loading ? 'Resolving...' : 'Mark Resolved'}
+    <button onClick={resolve} disabled={loading}
+      className="shrink-0 px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 shadow-lg shadow-green-600/20">
+      {loading ? 'Resolving…' : 'Resolve'}
     </button>
   )
 }

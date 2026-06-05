@@ -22,12 +22,7 @@ export default function SOSButton({ guardId }: { guardId: string }) {
     } catch {}
 
     const supabase = createClient()
-    await supabase.from('sos_alerts').insert({
-      guard_id: guardId,
-      latitude: lat,
-      longitude: lng,
-    })
-
+    await supabase.from('sos_alerts').insert({ guard_id: guardId, latitude: lat, longitude: lng })
     await fetch('/api/sos/notify', { method: 'POST' })
 
     setSent(true)
@@ -37,36 +32,46 @@ export default function SOSButton({ guardId }: { guardId: string }) {
 
   if (sent) {
     return (
-      <div className="bg-red-50 border-2 border-red-300 rounded-xl p-6 text-center">
-        <div className="text-4xl mb-3">🚨</div>
-        <h2 className="text-xl font-bold text-red-700">SOS Alert Sent</h2>
-        <p className="text-red-600 mt-2">Your supervisors have been notified with your location. Stay where you are.</p>
-        <button onClick={() => setSent(false)} className="mt-4 text-sm text-red-500 hover:underline">Dismiss</button>
+      <div className="bg-red-500/10 border-2 border-red-500/40 rounded-2xl p-8 text-center max-w-sm mx-auto">
+        <div className="text-5xl mb-4">🚨</div>
+        <h2 className="text-xl font-bold text-red-400">SOS Alert Sent</h2>
+        <p className="text-red-400/70 text-sm mt-2 leading-relaxed">
+          Your supervisors have been notified with your location. Stay where you are and wait for assistance.
+        </p>
+        <button onClick={() => setSent(false)}
+          className="mt-5 text-xs text-gray-500 hover:text-gray-300 underline">
+          Dismiss
+        </button>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center">
-      <p className="text-gray-600 text-sm mb-6">Press the SOS button in an emergency. Your GPS location will be sent to all supervisors immediately.</p>
+    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 text-center max-w-sm mx-auto">
+      <p className="text-gray-500 text-sm mb-8 leading-relaxed">
+        Press SOS in an emergency. Your GPS location will be sent to all supervisors immediately.
+      </p>
 
       {!confirm ? (
         <button
           onClick={() => setConfirm(true)}
-          className="w-40 h-40 mx-auto rounded-full bg-red-500 hover:bg-red-600 active:scale-95 text-white font-bold text-xl shadow-lg transition-all flex flex-col items-center justify-center gap-1"
+          className="w-40 h-40 mx-auto rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white font-bold shadow-2xl shadow-red-600/40 transition-all flex flex-col items-center justify-center gap-2 border-4 border-red-500/50"
         >
-          <span className="text-3xl">🆘</span>
-          SOS
+          <span className="text-4xl">🆘</span>
+          <span className="text-2xl font-black tracking-widest">SOS</span>
         </button>
       ) : (
         <div className="space-y-4">
-          <p className="font-semibold text-red-700">Are you sure you want to send an SOS alert?</p>
-          <div className="flex gap-3 justify-center">
-            <button onClick={() => setConfirm(false)} className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">
+          <p className="font-semibold text-red-400">Send SOS alert now?</p>
+          <p className="text-xs text-gray-500">This will immediately alert all supervisors.</p>
+          <div className="flex gap-3">
+            <button onClick={() => setConfirm(false)}
+              className="flex-1 py-2.5 bg-gray-800 border border-gray-700 text-gray-300 rounded-xl font-medium text-sm">
               Cancel
             </button>
-            <button onClick={triggerSOS} disabled={loading} className="px-6 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium disabled:opacity-60">
-              {loading ? 'Sending...' : 'Yes, Send SOS'}
+            <button onClick={triggerSOS} disabled={loading}
+              className="flex-1 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold disabled:opacity-50 text-sm shadow-lg shadow-red-600/20">
+              {loading ? 'Sending…' : 'Yes, Send SOS'}
             </button>
           </div>
         </div>

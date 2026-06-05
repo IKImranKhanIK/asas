@@ -12,37 +12,50 @@ export default async function SOSPage() {
     .from('sos_alerts')
     .select('*, guard:profiles!sos_alerts_guard_id_fkey(full_name, badge_number, phone), resolver:profiles!sos_alerts_resolved_by_fkey(full_name)')
     .order('created_at', { ascending: false })
-    .limit(20)
+    .limit(50)
 
   const isAdmin = ['admin', 'supervisor'].includes(profile?.role)
   const activeAlerts = alerts?.filter(a => a.status === 'active') ?? []
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">SOS / Emergency</h1>
+    <div className="space-y-6 max-w-4xl">
+      <div>
+        <h1 className="text-xl font-bold text-white">SOS / Emergency</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Emergency alerts and lone worker protection</p>
+      </div>
 
-      {!isAdmin && (
-        <SOSButton guardId={user!.id} />
-      )}
+      {/* Guard SOS button */}
+      {!isAdmin && <SOSButton guardId={user!.id} />}
 
+      {/* Active alerts */}
       {activeAlerts.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <h2 className="font-bold text-red-700 text-lg mb-3">🚨 Active Alerts ({activeAlerts.length})</h2>
+        <div className="bg-red-500/10 border-2 border-red-500/30 rounded-2xl p-5">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+            </span>
+            <h2 className="font-bold text-red-400 text-lg">
+              {activeAlerts.length} ACTIVE ALERT{activeAlerts.length > 1 ? 'S' : ''} — RESPOND NOW
+            </h2>
+          </div>
           <div className="space-y-3">
             {activeAlerts.map((alert: any) => (
-              <div key={alert.id} className="bg-white rounded-lg p-4 border border-red-200 flex items-start justify-between gap-4">
+              <div key={alert.id}
+                className="bg-gray-900 border border-red-500/30 rounded-xl p-4 flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-semibold text-gray-900">{alert.guard?.full_name}</p>
-                  <p className="text-sm text-gray-500">Badge: {alert.guard?.badge_number ?? 'N/A'} · Phone: {alert.guard?.phone ?? 'N/A'}</p>
-                  <p className="text-sm text-gray-500 mt-1">{format(new Date(alert.created_at), 'MMM d, h:mm:ss a')}</p>
+                  <p className="font-bold text-white">{alert.guard?.full_name}</p>
+                  <p className="text-sm text-gray-400 mt-0.5">
+                    Badge #{alert.guard?.badge_number ?? 'N/A'} · {alert.guard?.phone ?? 'No phone'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {format(new Date(alert.created_at), 'MMM d, h:mm:ss a')}
+                  </p>
                   {alert.latitude && (
-                    <a
-                      href={`https://maps.google.com/?q=${alert.latitude},${alert.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline mt-1 inline-block"
-                    >
-                      📍 View on Google Maps
+                    <a href={`https://maps.google.com/?q=${alert.latitude},${alert.longitude}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 mt-2">
+                      📍 View on Google Maps →
                     </a>
                   )}
                 </div>
@@ -53,37 +66,43 @@ export default async function SOSPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-800">Alert History</h2>
+      {/* Alert history */}
+      <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-800">
+          <h2 className="text-sm font-semibold text-gray-100">Alert History</h2>
         </div>
         {alerts && alerts.length > 0 ? (
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Guard</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Time</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Resolved By</th>
+            <thead>
+              <tr className="border-b border-gray-800">
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Guard</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Resolved By</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-800">
               {alerts.map((alert: any) => (
-                <tr key={alert.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-medium text-gray-800">{alert.guard?.full_name}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{format(new Date(alert.created_at), 'MMM d, h:mm a')}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${alert.status === 'active' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                <tr key={alert.id} className="hover:bg-gray-800/40 transition-colors">
+                  <td className="px-5 py-3.5 text-sm font-medium text-gray-100">{alert.guard?.full_name}</td>
+                  <td className="px-5 py-3.5 text-sm text-gray-500">{format(new Date(alert.created_at), 'MMM d, h:mm a')}</td>
+                  <td className="px-5 py-3.5">
+                    <span className={`badge border ${alert.status === 'active'
+                      ? 'bg-red-500/15 text-red-400 border-red-500/20'
+                      : 'bg-green-500/15 text-green-400 border-green-500/20'
+                    }`}>
                       {alert.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{alert.resolver?.full_name ?? '—'}</td>
+                  <td className="px-5 py-3.5 text-sm text-gray-500 hidden md:table-cell">
+                    {alert.resolver?.full_name ?? <span className="text-gray-700">—</span>}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : (
-          <div className="p-10 text-center text-gray-400 text-sm">No SOS alerts recorded.</div>
+          <div className="py-16 text-center text-gray-600 text-sm">No SOS alerts recorded.</div>
         )}
       </div>
     </div>

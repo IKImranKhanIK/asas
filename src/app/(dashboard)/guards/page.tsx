@@ -3,6 +3,23 @@ import { redirect } from 'next/navigation'
 import { format } from 'date-fns'
 import Link from 'next/link'
 
+const roleStyle: Record<string, string> = {
+  admin:      'bg-purple-500/15 text-purple-400 border-purple-500/20',
+  supervisor: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
+  guard:      'bg-gray-700/50 text-gray-400 border-gray-700',
+}
+
+function Avatar({ name }: { name: string }) {
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  const colors = ['bg-blue-600', 'bg-violet-600', 'bg-emerald-600', 'bg-amber-600', 'bg-rose-600']
+  const color = colors[name.charCodeAt(0) % colors.length]
+  return (
+    <div className={`w-8 h-8 ${color} rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+      {initials}
+    </div>
+  )
+}
+
 export default async function GuardsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -10,72 +27,83 @@ export default async function GuardsPage() {
 
   if (!['admin', 'supervisor'].includes(profile?.role)) redirect('/dashboard')
 
-  const { data: guards } = await supabase
-    .from('profiles')
-    .select('*')
-    .order('full_name')
+  const { data: guards } = await supabase.from('profiles').select('*').order('full_name')
 
-  const roleColors: Record<string, string> = {
-    admin: 'bg-purple-100 text-purple-700',
-    supervisor: 'bg-blue-100 text-blue-700',
-    guard: 'bg-gray-100 text-gray-600',
-  }
+  const total = guards?.length ?? 0
+  const active = guards?.filter((g: any) => g.is_active).length ?? 0
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Guards & Staff</h1>
-        <Link href="/guards/invite" className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+    <div className="space-y-6 max-w-6xl">
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-white">Guards & Staff</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{total} total · {active} active</p>
+        </div>
+        <Link href="/guards/invite"
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-blue-600/20">
           + Add Guard
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
         {guards && guards.length > 0 ? (
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Badge</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+            <thead>
+              <tr className="border-b border-gray-800">
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Badge</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Phone</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Joined</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-800">
               {guards.map((guard: any) => (
-                <tr key={guard.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
+                <tr key={guard.id} className="hover:bg-gray-800/40 transition-colors">
+                  <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                        {guard.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-                      </div>
+                      <Avatar name={guard.full_name} />
                       <div>
-                        <Link href={`/guards/${guard.id}`} className="text-sm font-medium text-gray-800 hover:text-blue-600">{guard.full_name}</Link>
-                        <p className="text-xs text-gray-400">{guard.email}</p>
+                        <Link href={`/guards/${guard.id}`}
+                          className="text-sm font-medium text-gray-100 hover:text-blue-400 transition-colors">
+                          {guard.full_name}
+                        </Link>
+                        <p className="text-xs text-gray-600">{guard.email}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{guard.badge_number ?? '—'}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${roleColors[guard.role]}`}>
-                      {guard.role}
-                    </span>
+                  <td className="px-5 py-3.5 text-sm text-gray-400 hidden sm:table-cell">
+                    {guard.badge_number ?? <span className="text-gray-700">—</span>}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{guard.phone ?? '—'}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${guard.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  <td className="px-5 py-3.5">
+                    <span className={`badge border ${roleStyle[guard.role]}`}>{guard.role}</span>
+                  </td>
+                  <td className="px-5 py-3.5 text-sm text-gray-400 hidden md:table-cell">
+                    {guard.phone ?? <span className="text-gray-700">—</span>}
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span className={`badge border ${guard.is_active
+                      ? 'bg-green-500/15 text-green-400 border-green-500/20'
+                      : 'bg-red-500/15 text-red-400 border-red-500/20'
+                    }`}>
                       {guard.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-400">{format(new Date(guard.created_at), 'MMM d, yyyy')}</td>
+                  <td className="px-5 py-3.5 text-sm text-gray-600 hidden lg:table-cell">
+                    {format(new Date(guard.created_at), 'MMM d, yyyy')}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : (
-          <div className="p-10 text-center text-gray-400 text-sm">No staff added yet.</div>
+          <div className="py-16 text-center">
+            <p className="text-gray-500 text-sm">No staff added yet.</p>
+            <Link href="/guards/invite" className="mt-3 inline-block text-blue-400 text-sm hover:underline">
+              Add your first guard →
+            </Link>
+          </div>
         )}
       </div>
     </div>

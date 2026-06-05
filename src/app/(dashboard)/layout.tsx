@@ -16,11 +16,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .single()
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full bg-gray-950">
       <Sidebar role={profile?.role ?? 'guard'} />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <TopBar user={profile} />
-        <main className="flex-1 overflow-auto p-6 bg-gray-50">
+        <main className="flex-1 overflow-auto p-6">
           {children}
         </main>
       </div>

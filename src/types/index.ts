@@ -59,3 +59,43 @@ export interface Report {
   guard?: Profile
   location?: Location
 }
+
+export interface SOSAlert {
+  id: string
+  guard_id: string
+  latitude?: number
+  longitude?: number
+  message?: string
+  status: 'active' | 'resolved'
+  resolved_by?: string
+  resolved_at?: string
+  created_at: string
+  guard?: Profile
+}
+
+export interface GuardMessage {
+  id: string
+  sender_id: string
+  recipient_id?: string
+  subject?: string
+  body: string
+  is_read: boolean
+  is_broadcast: boolean
+  created_at: string
+  sender?: Profile
+  recipient?: Profile
+}
+
+export interface Shift {
+  id: string
+  guard_id: string
+  location_id?: string
+  start_time: string
+  end_time: string
+  status: 'scheduled' | 'active' | 'completed' | 'missed'
+  notes?: string
+  created_by?: string
+  created_at: string
+  guard?: Profile
+  location?: Location
+}
